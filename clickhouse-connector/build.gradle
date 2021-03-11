@@ -1,0 +1,216 @@
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
+import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+
+plugins {
+	id 'org.springframework.boot' version '2.3.0.RELEASE'
+	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+	id 'java'
+	id "com.bmuschko.docker-remote-api"
+}
+
+sourceCompatibility = 11
+targetCompatibility = 11
+
+sourceSets {
+	integrationTest {
+		java {
+			compileClasspath += main.output + test.output
+			runtimeClasspath += main.output + test.output
+			srcDir file('src/integration-test/java')
+		}
+		resources.srcDir file('src/integration-test/resources')
+	}
+}
+
+configurations {
+	integrationTestImplementation.extendsFrom(testImplementation)
+	integrationTestRuntime.extendsFrom(testRuntime)
+}
+
+dependencyManagement {
+	dependencies {
+		dependencySet(group: 'deltix', version: "${gflog_version}") {
+			entry 'deltix-gflog-api'
+			entry 'deltix-gflog-core'
+			entry 'deltix-gflog-jul'
+			entry 'deltix-gflog-jcl'
+			entry 'deltix-gflog-slf4j'
+		}
+
+		dependency("deltix:deltix-dfp:$dfp_version")
+		//dependency("deltix.qsrv:deltix-timebase-api-messages:${deltixMessageVersion}")
+
+		dependencySet(group: 'deltix.qsrv', version: "6.0.44") {
+			entry('deltix-commons-messages') /*{
+                exclude 'deltix.qsrv:deltix-timebase-api-messages'
+            }*/
+			entry('deltix-commons-lang') /*{
+                exclude 'deltix.qsrv:deltix-timebase-api-messages'
+            }*/
+
+		}
+
+		dependencySet(group: 'deltix.qsrv', version: "6.0.35") {
+			entry('deltix-commons-util') /*{
+                exclude 'deltix.qsrv:deltix-timebase-api-messages'
+            }*/
+		}
+		dependencySet(group: 'deltix.qsrv.timebase', version: "${timebase_client_version}") {
+			entry('deltix-timebase-api') /*{
+                exclude 'deltix.qsrv:deltix-timebase-api-messages'
+            }*/
+			entry('deltix-timebase-client') /*{
+                exclude 'deltix.qsrv:deltix-timebase-api-messages'
+            }*/
+			entry('deltix-timebase-pub') /*{
+                exclude 'deltix.qsrv:deltix-timebase-api-messages'
+            }*/
+		}
+
+		dependencySet(group: 'deltix.clickhouse', version: "${clickhouse_client_version}") {
+			entry('clickhouse-client') /*{
+                exclude 'deltix:deltix-dfp'
+            }*/
+		}
+
+//		dependency("org.hamcrest:hamcrest-library:$hamcrest_library_version")
+
+		//dependency("deltix.qsrv:deltix-commons-util:${commonsVersion}") /*{
+        //    exclude 'deltix.qsrv:deltix-timebase-api-messages'
+        //}*/
+	}
+}
+
+dependencies {
+	// Spring
+	implementation('org.springframework.boot:spring-boot-starter-actuator') {
+		exclude group: 'ch.qos.logback'
+	}
+	implementation('org.springframework.boot:spring-boot-starter-data-jpa') {
+		exclude group: 'ch.qos.logback'
+	}
+	implementation('org.springframework.boot:spring-boot-starter-security') {
+		exclude group: 'ch.qos.logback'
+	}
+
+	// Logger
+	implementation "deltix:deltix-gflog-api",
+			"deltix:deltix-gflog-core",
+			"deltix:deltix-gflog-jul"
+	runtimeOnly "deltix:deltix-gflog-jcl",
+			"deltix:deltix-gflog-slf4j"
+
+
+	// Deltix suite
+	implementation("deltix:deltix-dfp")
+	//implementation("deltix.qsrv:deltix-timebase-api-messages")
+	//implementation("deltix.qsrv:deltix-commons-util")
+
+	// Timebase suite
+	implementation("deltix.qsrv:deltix-commons-messages")
+	implementation("deltix.qsrv:deltix-commons-lang")
+	implementation("deltix.qsrv:deltix-commons-util")
+
+	implementation("deltix.qsrv.timebase:deltix-timebase-api")
+	implementation("deltix.qsrv.timebase:deltix-timebase-client")
+	implementation("deltix.qsrv.timebase:deltix-timebase-pub")
+
+	// Clickhouse client
+	implementation("deltix.clickhouse:clickhouse-client:${clickhouse_client_version}")
+
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+		exclude group: 'ch.qos.logback'
+	}
+	testImplementation 'org.springframework.security:spring-security-test'
+
+	testImplementation("org.hamcrest:hamcrest-library:${hamcrest_library_version}")
+	testImplementation("de.cronn:reflection-util:2.6.0")
+	testImplementation("org.testcontainers:testcontainers:${postgres_testcontainers_version}")
+	testImplementation("org.testcontainers:junit-jupiter:${postgres_testcontainers_version}")
+	testImplementation("org.testcontainers:clickhouse:${postgres_testcontainers_version}")
+}
+
+tasks.withType(Test) {
+	useJUnitPlatform()
+}
+
+task integrationTest(type: Test) {
+	group 'verification'
+
+	testClassesDirs = sourceSets.integrationTest.output.classesDirs
+	classpath = sourceSets.integrationTest.runtimeClasspath
+	// This forces integration tests to always run if the task is run.
+	outputs.upToDateWhen { false }
+
+	testLogging.showStandardStreams = false
+	testLogging {
+		events "passed", "skipped", "failed"
+	}
+
+	reports {
+		html.enabled = true
+	}
+}
+
+tasks.withType(Jar) {
+    destinationDirectory = file("$rootDir/build/deploy")
+}
+
+final def dockerImageName = "$dockerUrl/timebaseconnectors/clickhouse-connector"
+def dockerTags = dockerTags.collect { baseTag -> "$dockerImageName:${baseTag}" }
+
+// create clickhouse-connector image
+task createDockerfile(type: Dockerfile) {
+    group 'docker'
+    destFile = project.file("$dockerDir/$project.name/Dockerfile")
+
+//    from 'hirokimatsumoto/alpine-openjdk-11:latest'
+	from 'adoptopenjdk/openjdk11'
+	copyFile('clickhouse-connector', '/clickhouse-connector')
+	def dockerEntryPoint='''\
+#!/bin/sh \\n \\n \
+java -Dgflog.config=/configuration/gflog.xml \
+	-Dorg.springframework.boot.logging.LoggingSystem=none \
+	-Dspring.config.name=application,clickhouse-connector,constants,timebase,clickhouse \
+	-Dspring.config.location=classpath:/,file:/configuration/ \\\${JAVA_OPTS} \
+	-cp /clickhouse-connector/BOOT-INF/classes:/clickhouse-connector/BOOT-INF/lib/*:/clickhouse-connector org.springframework.boot.loader.JarLauncher \"\\\$@\" \
+'''
+	runCommand("echo \"${dockerEntryPoint}\" > /entrypoint.sh")
+	runCommand("chmod +x /entrypoint.sh")
+	entryPoint('/entrypoint.sh')
+//    defaultCommand('--spring.config.location=classpath:/,file:/configuration/')
+}
+
+task collectDockerDependencies(type: Copy) {
+    group 'docker'
+    dependsOn createDockerfile
+
+    into project.file("$dockerDir/$project.name")
+    into('/clickhouse-connector') {
+        from zipTree("$rootDir/build/deploy/" + bootJar.archiveName)
+    }
+}
+
+task buildDockerImage(type: DockerBuildImage) {
+    group 'docker'
+    dependsOn collectDockerDependencies
+
+    inputDir = project.file("$dockerDir/$project.name")
+    buildDockerImage.tags = dockerTags
+}
+
+task pushDockerImage(type: DockerPushImage) {
+    group 'docker'
+    dependsOn buildDockerImage
+    imageName = dockerImageName
+}
+
+task removeDockerImage(type: Exec) {
+    group 'docker'
+    ignoreExitValue true
+    dependsOn pushDockerImage
+    def cmd = ["docker", "rmi"] + dockerTags
+    commandLine cmd
+}

@@ -1,0 +1,69 @@
+plugins {
+    id 'java'
+    id "com.bmuschko.docker-remote-api" version "5.2.0"
+}
+
+sourceCompatibility = 11
+
+repositories {
+    mavenCentral()
+}
+
+allprojects {
+    apply from: "$rootDir/gradle/Deltix.gradle"
+
+    repositories {
+        mavenDeltixProxy("DevMain")
+    }
+    buildscript {
+        repositories {
+            mavenDeltixProxy("DevMain")
+        }
+    }
+}
+
+apply from: "$rootDir/gradle/Release.gradle"
+
+// docker part
+ext.dockerDir = "$buildDir/docker"
+ext.dockerHost = rootProject.findProperty('dockerRepositoryUrl') ?: System.getenv('ARTIFACTORY_DOCKER_REPOSITORY')
+if (rootProject.findProperty('dockerFeed') != null) {
+    ext.dockerUrl = "$dockerHost/${rootProject.findProperty('dockerFeed')}"
+} else
+    ext.dockerUrl = "$dockerHost/deltix.docker"
+
+//ext.dockerUrl = "$dockerHost/test.docker"
+//ext.dockerTagLatest = false
+if (rootProject.findProperty('dockerTag') != null) {
+    ext.dockerTags = ["${project.version.substring(0, project.version.lastIndexOf('.')).toString()}-${rootProject.findProperty('dockerTag')}"]
+    ext.assets = rootProject.findProperty('dockerTag')
+} else {
+    ext.dockerTags = ["$project.version", "${project.version.substring(0, project.version.lastIndexOf('.')).toString()}"]
+    ext.assets = "${project.version.substring(0, project.version.lastIndexOf('.')).toString()}"
+}
+
+ext.devArtifactory = System.getenv('ARTIFACTORY_DOCKER_DEV_REPOSITORY') ?: "artifactory.epam.com:6190"
+ext.artifactory = System.getenv('ARTIFACTORY_DOCKER_REPOSITORY') ?: "artifactory.epam.com:6193"
+ext.assetsUrl = "${System.getenv('ARTIFACTORY_URL')}/${System.getenv('ARTIFACTORY_GENERIC_REPOSITORY')}"
+ext.devAssetsUrl = "${System.getenv('ARTIFACTORY_URL')}/${System.getenv('ARTIFACTORY_GENERIC_DEV_REPOSITORY')}"
+
+configure(subprojects) {
+    buildscript {
+        repositories {
+            gradlePluginPortal()
+        }
+        dependencies {
+            classpath 'com.bmuschko:gradle-docker-plugin:5.2.0'
+        }
+    }
+
+    apply plugin: com.bmuschko.gradle.docker.DockerRemoteApiPlugin
+
+    docker {
+        registryCredentials {
+            url = "$dockerUrl"
+            username = System.getenv('ARTIFACTORY_USER') ?: rootProject.findProperty('dockerRepositoryUsername')
+            password = System.getenv('ARTIFACTORY_PASS') ?: rootProject.findProperty('dockerRepositoryPassword')
+        }
+    }
+}
