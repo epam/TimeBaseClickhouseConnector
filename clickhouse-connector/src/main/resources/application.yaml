@@ -1,0 +1,16 @@
+clickhouse:
+  url: jdbc:clickhouse://tbc-clickhouse:8123/default
+  username: read
+  password:
+  database: tbc
+
+timebase:
+  url: dxtick://tbc-timebase:8011
+  username:
+  password:
+
+replication:
+  pollingIntervalMs: 60_000
+  flushMessageCount: 10_000
+  flushTimeoutMs: 60_000
+  streams: []
