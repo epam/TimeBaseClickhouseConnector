@@ -6,7 +6,7 @@ Use our [proprietary open source connector](https://github.com/epam/TimeBaseClic
 
 [ClickHouse](https://clickhouse.tech/docs/en/) is a [column-oriented database](https://en.wikipedia.org/wiki/Column-oriented_DBMS) management system (DBMS) for online analytical processing of queries (OLAP) that allows to generate analytical reports using SQL queries in real-time.
 
-TimeBase stores time series events as [Messages](messages.html) and each type of event has a personal message class assigned to it in TimeBase. Message class has a set of fields (attributes) that characterize, describe, identify each specific type of event. In object-oriented programing languages messages can be seen as classes, each with a specific set of fields. Messages are stored in [Streams](streams.html) chronologically by their timestamps for each symbol. Refer to a [Basic Concepts](basic_concepts.html) page to learn more about TimeBase main principles and data structure.
+TimeBase stores time series events as [Messages](https://kb.timebase.info/messages.html) and each type of event has a personal message class assigned to it in TimeBase. Message class has a set of fields (attributes) that characterize, describe, identify each specific type of event. In object-oriented programing languages messages can be seen as classes, each with a specific set of fields. Messages are stored in [Streams](https://kb.timebase.info/streams.html) chronologically by their timestamps for each symbol. Refer to a [Basic Concepts](https://kb.timebase.info/basic_concepts.html) page to learn more about TimeBase main principles and data structure.
 
 To replicate TimeBase stream data to ClickHouse, we take objects and classes from a particular TimeBase stream and *unfold* them so each field corresponds to a particular ClickHouse table column. `Timestamp`, `Partition` and `Instrument` are auto generated and common for all ClickHouse tables where `Instrument` + `Timestamp` = `PrimaryKey`. ClickHouse tables are named after TimeBase stream names. Tables rows are created for each TimeBase message in a chronological order.
 
@@ -17,8 +17,14 @@ Let's take a look at a **simplified** example. In this example we will show how 
 For the example, we take a message with two fixed-type fields `Symbol` and `Timestamp`, and a polymorphic array `entries` with two types of entries (classes) `Trade` and `BBO`, each having a specific set of fields - shown on the illustration above.
 
 Such data structure can be transformed to a ClickHouse table the following way: 
-
+<!--
 ![](/clickhouse-connector/src/img/table1.png)
+-->
+
+|Timestamp|Symbol|entries.type|entries.price_float64|entries.size_float64|entries.AskPrice_float64|entries.AskSize_float64|entries.BidPrice_float64|entries.BidSize_float64|entries.exchange_string|
+|---------|------|------------|---------------------|--------------------|------------------------|-----------------------|------------------------|-----------------------|-----------------------|
+|2021-08-25T07:00:00.025Z|btcusd|entries.trade, entries.bbo|1|2|7|8|9|10|kraken,kraken|
+|2021-08-25T07:00:00.026Z|btcusd|entries.bbo|||3|4|5|6|kraken|
 
 On the above table we see, that first data partition includes two entries of different types and the second just one. This way the output table has columns for each field from our source message, including objects' fields in the polymorphic array `entries`.
 
@@ -56,7 +62,7 @@ docker run --rm -d \
 2. Run replicator in [Docker](https://github.com/epam/TimeBaseClickhouseConnector/blob/main/clickhouse-connector/Dockerfile) or directly via `java -jar`
 
 
-* Refer to [TimeBase Quick Start](quick-start.html) to learn more about starting TimeBase.
+* Refer to [TimeBase Quick Start](https://kb.timebase.info/quick-start.html) to learn more about starting TimeBase.
 * Refer to [Replicator GitHub Repository](https://github.com/epam/TimeBaseClickhouseConnector/blob/main/clickhouse-connector/Dockerfile) to learn more about it's deployment. 
 
 
@@ -109,7 +115,7 @@ replication:
 ## Data Type Mappings
 
 * Refer to [ClickHouse Data Types](https://clickhouse.tech/docs/en/sql-reference/data-types/) to learn more about data types supported by ClickHouse DBMS.
-* Refer to [Data Types](data_types.html) to learn more about data types supported by TimeBase.
+* Refer to [Data Types](https://kb.timebase.info/data_types.html) to learn more about data types supported by TimeBase.
 * Refer to [SchemaProcessor](https://github.com/epam/TimeBaseClickhouseConnector/blob/main/clickhouse-connector/src/main/java/deltix/timebase/connector/clickhouse/algos/SchemaProcessor.java) to view data mappings for the ClickHouse replicator. 
 
 
