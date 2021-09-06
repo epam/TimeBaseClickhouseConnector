@@ -35,11 +35,7 @@ The column naming convention:
 
 We can describe a **more realistic** example now. Let's take a Kraken stream. 
 
-<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight" style="
-    max-height: 600px;
-    overflow: auto;
-    margin-bottom: 20px;
-"><code>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight" style="max-height: 600px; overflow: auto; margin-bottom: 20px;"><code>
 <span class="c1">// Kraken stream schema. Here you can find all the included classes, enums and objects, their fields and data types.</span>
 
 <span class="no">DURABLE</span> <span class="no">STREAM</span> <span class="s">"kraken"</span> <span class="o">(</span>
@@ -180,11 +176,7 @@ We can describe a **more realistic** example now. Let's take a Kraken stream.
 
 The ClickHouse table will have the following structure. Here we see, that message fixed-type fields are named as `currencyCode_N_Int16 Nullable(Int16)`, whereas fields of a polymorphic object have `array` added `entries.exchangeId_N_String Array(Nullable(String))`.
 
-<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight" style="
-    max-height: 600px;
-    overflow: auto;
-    margin-bottom: 20px;
-"><code><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">clickhouse</span><span class="p">.</span><span class="n">kraken</span> <span class="p">(</span>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight" style="max-height: 600px; overflow: auto; margin-bottom: 20px;"><code><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">clickhouse</span><span class="p">.</span><span class="n">kraken</span> <span class="p">(</span>
   <span class="nv">`partition`</span> <span class="nb">Date</span><span class="p">,</span>
   <span class="nv">`timestamp`</span> <span class="n">DateTime64</span><span class="p">(</span><span class="mi">9</span><span class="p">),</span>
   <span class="nv">`instrument`</span> <span class="n">String</span><span class="p">,</span>
@@ -271,6 +263,7 @@ The ClickHouse table will have the following structure. Here we see, that messag
 <span class="k">ORDER</span> <span class="k">BY</span>
   <span class="p">(</span><span class="nb">timestamp</span><span class="p">,</span> <span class="n">instrument</span><span class="p">)</span> <span class="n">SETTINGS</span> <span class="n">index_granularity</span> <span class="o">=</span> <span class="mi">8192</span>
 </code></pre></div></div>
+
 This table can be displayed in the TimeBase integration with [Tabix](https://tabix.io/) (business intelligence application and SQL editor for ClickHouse) as follows: 
 
 <a href="/images/tabix.png" data-lightbox="image-2" data-title="ClickHouse Table" ><img src="/images/tabix.png" class="zoom" style="max-width: 60% !important;"/></a>
