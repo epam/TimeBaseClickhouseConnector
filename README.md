@@ -12,13 +12,13 @@ To replicate TimeBase stream data to ClickHouse, we take objects and classes fro
 
 Let's take a look at a **simplified** example. In this example we will show how a message with fixed-type and polymorphic objects is transformed into a ClickHouse table. 
 
-![](/src/img/message_example.png)
+![](/clickhouse-connector/src/img/message_example.png)
 
 For the example, we take a message with two fixed-type fields `Symbol` and `Timestamp`, and a polymorphic array `entries` with two types of entries (classes) `Trade` and `BBO`, each having a specific set of fields - shown on the illustration above.
 
 Such data structure can be transformed to a ClickHouse table the following way: 
 
-![](/src/img/table1.png)
+![](/clickhouse-connector/src/img/table1.png)
 
 On the above table we see, that first data partition includes two entries of different types and the second just one. This way the output table has columns for each field from our source message, including objects' fields in the polymorphic array `entries`.
 
