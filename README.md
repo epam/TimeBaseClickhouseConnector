@@ -44,7 +44,7 @@ Let's take a look at a **simplified** example. In this example we will show how 
 ```sql
 /*TimeBase stream schema*/
 
-DURABLE STREAM "timescale_stream" (
+DURABLE STREAM "clickhouse_stream" (
     CLASS "array" (
     );
     CLASS "bbo" UNDER "array" (
@@ -66,7 +66,7 @@ OPTIONS (POLYMORPHIC; PERIODICITY = 'IRREGULAR'; HIGHAVAILABILITY = FALSE)
 The ClickHouse table will have the following structure. Here we see, that message fixed-type fields are named as `currencyCode_N_Int16 Nullable(Int16)`, whereas fields of a polymorphic object have `Array()` added `array.exchange_N_String Array(Nullable(String))`.
 
 ```sql
-CREATE TABLE clickhouse.kraken (
+CREATE TABLE clickhouse.clickhouse_stream (
   `partition` Date,
   `timestamp` DateTime64(9),
   `instrument` String,
@@ -123,10 +123,8 @@ docker run --rm -d \
 ```
 2. Run replicator in [Docker](https://github.com/epam/TimeBaseClickhouseConnector/blob/main/clickhouse-connector/Dockerfile) or directly via `java -jar`
 
-
 * Refer to [TimeBase Quick Start](https://kb.timebase.info/quick-start.html) to learn more about starting TimeBase.
 * Refer to [Replicator GitHub Repository](https://github.com/epam/TimeBaseClickhouseConnector/blob/main/clickhouse-connector/Dockerfile) to learn more about it's deployment. 
-
 
 ## Configuration 
 
@@ -176,6 +174,7 @@ replication:
 * `flushMessageCount` - data will be replicated in batch upon the achievement of the defined message count.
 * `flushTimeoutMs` - in case `flushMessageCount` has not been reached data is replicated anyways after `flushTimeoutMs` time runs out.
 
+## Known Limitations
 
-
+The replicator does not currently support the replication of nested objects other than arrays. 
 
