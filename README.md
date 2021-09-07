@@ -41,23 +41,24 @@ To replicate TimeBase stream data to ClickHouse, we take objects and classes fro
 
 Let's take a look at a **simplified** example. In this example we will show how a message with a polymorphic array is transformed into a ClickHouse table. 
 
+Refer to [Example]() to view a step-by-step instruction on how to run this demo example and try the replication in action. 
+
 ```sql
 /*TimeBase stream schema*/
 
 DURABLE STREAM "clickhouse_stream" (
-    CLASS "array" (
-    );
-    CLASS "bbo" UNDER "array" (
+    CLASS "trade" (
         "price" '' FLOAT DECIMAL64,
-        "size" '' FLOAT DECIMAL64,
-        "exchange" '' VARCHAR MULTILINE
+        "size" '' FLOAT DECIMAL64
     );
-    CLASS "trade" UNDER "array" (
+    CLASS "bbo" (
         "askPrice" '' FLOAT DECIMAL64,
         "askSize" '' FLOAT DECIMAL64,
         "bidPrice" '' FLOAT DECIMAL64,
-        "bidSize" '' FLOAT DECIMAL64,
-        "exchange" '' VARCHAR MULTILINE
+        "bidSize" '' FLOAT DECIMAL64
+    );
+    CLASS "Message" (
+        "entries" ARRAY(OBJECT("trade", "bbo") NOT NULL)
     );
 )
 OPTIONS (POLYMORPHIC; PERIODICITY = 'IRREGULAR'; HIGHAVAILABILITY = FALSE)
@@ -92,10 +93,6 @@ ORDER BY
   (timestamp, instrument) SETTINGS index_granularity = 8192
 ```
 
-This table can be displayed in the TimeBase integration with [Tabix](https://tabix.io/) (business intelligence application and SQL editor for ClickHouse) as follows: 
-
-![](/clickhouse-connector/src/img/tabix.png)
-
 ## Failover Support 
 
 In case `pollingIntervalMs` is configured, the replicator will periodically check the list of stream to be replicated and start replication in case is has been stopped for any reason. If this parameter is not configured, the replication process can be restarted manually. In both cases the next flow applies: 
@@ -112,19 +109,7 @@ DELETE FROM table_name WHERE EventTime = max_time
 
 ## Deployment 
 
-1. Run TimeBase<br>
-```bash
-# start TimeBase Community Edition
-docker run --rm -d \
-  -p 8011:8011 \
-  --name=timebase-server \
-  --ulimit nofile=65536:65536 \
-  finos/timebase-ce-server:latest
-```
-2. Run replicator in [Docker](https://github.com/epam/TimeBaseClickhouseConnector/blob/main/clickhouse-connector/Dockerfile) or directly via `java -jar`
-
-* Refer to [TimeBase Quick Start](https://kb.timebase.info/quick-start.html) to learn more about starting TimeBase.
-* Refer to [Replicator GitHub Repository](https://github.com/epam/TimeBaseClickhouseConnector/blob/main/clickhouse-connector/Dockerfile) to learn more about it's deployment. 
+Refer to [Example]() to learn more about starting the replication.
 
 ## Configuration 
 
