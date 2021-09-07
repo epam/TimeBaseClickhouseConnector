@@ -10,14 +10,13 @@ repositories {
 }
 
 allprojects {
-    apply from: "$rootDir/gradle/Deltix.gradle"
 
     repositories {
-        mavenDeltixProxy("DevMain")
+        mavenCentral()
     }
     buildscript {
         repositories {
-            mavenDeltixProxy("DevMain")
+            mavenCentral()
         }
     }
 }

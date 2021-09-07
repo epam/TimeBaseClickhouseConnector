@@ -1,5 +1,6 @@
 package deltix.timebase.connector.clickhouse.algos;
 
+import com.epam.deltix.gflog.api.*;
 import deltix.clickhouse.ClickhouseClient;
 import deltix.clickhouse.models.ClickhouseTableIdentity;
 import deltix.clickhouse.models.TableIdentity;
@@ -8,16 +9,14 @@ import deltix.clickhouse.schema.TableDeclaration;
 import deltix.clickhouse.schema.engines.MergeTreeEngine;
 import deltix.clickhouse.schema.types.*;
 import deltix.clickhouse.schema.types.DataType;
-import deltix.dfp.Decimal64Utils;
-import deltix.gflog.Log;
-import deltix.gflog.LogFactory;
-import deltix.qsrv.hf.pub.codec.DataFieldInfo;
-import deltix.qsrv.hf.pub.codec.NonStaticFieldLayout;
-import deltix.qsrv.hf.pub.codec.RecordLayout;
-import deltix.qsrv.hf.pub.md.*;
-import deltix.qsrv.hf.pub.md.ArrayDataType;
-import deltix.qsrv.hf.pub.md.DateTimeDataType;
-import deltix.qsrv.hf.tickdb.pub.TickStream;
+import com.epam.deltix.dfp.Decimal64Utils;
+import com.epam.deltix.qsrv.hf.pub.codec.DataFieldInfo;
+import com.epam.deltix.qsrv.hf.pub.codec.NonStaticFieldLayout;
+import com.epam.deltix.qsrv.hf.pub.codec.RecordLayout;
+import com.epam.deltix.qsrv.hf.pub.md.*;
+import com.epam.deltix.qsrv.hf.pub.md.ArrayDataType;
+import com.epam.deltix.qsrv.hf.pub.md.DateTimeDataType;
+import com.epam.deltix.qsrv.hf.tickdb.pub.TickStream;
 import deltix.timebase.connector.clickhouse.configuration.properties.ClickhouseProperties;
 import deltix.timebase.connector.clickhouse.util.StringUtil;
 import org.apache.commons.lang3.NotImplementedException;
@@ -148,7 +147,7 @@ public class SchemaProcessor {
     }
 
     public static ColumnDeclarationEx timebaseDataFieldToClickhouseColumnDeclaration(RecordClassDescriptor descriptor, DataFieldInfo dataField, ClassDescriptor[] descriptors) {
-        deltix.qsrv.hf.pub.md.DataType tbDataType = dataField.getType();
+        com.epam.deltix.qsrv.hf.pub.md.DataType tbDataType = dataField.getType();
         if (tbDataType instanceof ArrayDataType) {
             return columnFromArray(descriptor, dataField, descriptors);
         } else if (tbDataType instanceof ClassDataType) {
@@ -197,12 +196,12 @@ public class SchemaProcessor {
 
     private static ColumnDeclarationEx columnFromArray(RecordClassDescriptor descriptor, DataFieldInfo dataField, ClassDescriptor[] descriptors) {
         ArrayDataType arrayDataType = (ArrayDataType) dataField.getType();
-        deltix.qsrv.hf.pub.md.DataType tbDataType = arrayDataType.getElementDataType();
+        com.epam.deltix.qsrv.hf.pub.md.DataType tbDataType = arrayDataType.getElementDataType();
 
         if (tbDataType instanceof ArrayDataType) {
-            throw new NotImplementedException();
+            throw new UnsupportedOperationException();
         } else if (tbDataType instanceof BinaryDataType) {
-            throw new NotImplementedException();
+            throw new UnsupportedOperationException();
         } else if (tbDataType instanceof ClassDataType) {
             ClassDataType classDataType = (ClassDataType) tbDataType;
             RecordClassDescriptor[] descriptors1 = classDataType.getDescriptors();
@@ -243,23 +242,23 @@ public class SchemaProcessor {
     }
 
     public static String getColumnName(RecordClassDescriptor descriptor, DataFieldInfo dataField) {
-        deltix.qsrv.hf.pub.md.DataType dbDataType = dataField.getType();
+        com.epam.deltix.qsrv.hf.pub.md.DataType dbDataType = dataField.getType();
         DataType clickhouseDataType = convertTimebaseDataTypeToClickhouseDataType(dbDataType);
 
         return getColumnName(dbDataType, clickhouseDataType, dataField.getName());
     }
 
     public static String getColumnName(RecordClassDescriptor descriptor, DataFieldInfo dataField, DataType clickhouseDataType) {
-        deltix.qsrv.hf.pub.md.DataType dbDataType = dataField.getType();
+        com.epam.deltix.qsrv.hf.pub.md.DataType dbDataType = dataField.getType();
 
         return getColumnName(dbDataType, clickhouseDataType, dataField.getName());
     }
 
-    private static String getColumnName(deltix.qsrv.hf.pub.md.DataType dbDataType, DataType clickhouseDataType, String name) {
+    private static String getColumnName(com.epam.deltix.qsrv.hf.pub.md.DataType dbDataType, DataType clickhouseDataType, String name) {
         return encodeColumnName(name + formatTypePostfix(clickhouseDataType, dbDataType));
     }
 
-    private static String formatTypePostfix(DataType clickhouseDataType, deltix.qsrv.hf.pub.md.DataType dbDataType) {
+    private static String formatTypePostfix(DataType clickhouseDataType, com.epam.deltix.qsrv.hf.pub.md.DataType dbDataType) {
         if (clickhouseDataType instanceof NullableDataType)
             return "_N" + formatTypePostfix(((NullableDataType) clickhouseDataType).getNestedType(), dbDataType);
 
@@ -280,7 +279,7 @@ public class SchemaProcessor {
 
     }
 
-    private static String getEnumDbName(deltix.qsrv.hf.pub.md.DataType dbDataType) {
+    private static String getEnumDbName(com.epam.deltix.qsrv.hf.pub.md.DataType dbDataType) {
         final String typeName = dbDataType.getBaseName();
         final int lastDot = typeName.lastIndexOf(".");
         return lastDot == -1 ? typeName : typeName.substring(lastDot+1);
@@ -304,7 +303,7 @@ public class SchemaProcessor {
         return first.append(other).toString();
     }
 
-    private static DataType convertTimebaseDataTypeToClickhouseDataType(deltix.qsrv.hf.pub.md.DataType tbDataType) {
+    private static DataType convertTimebaseDataTypeToClickhouseDataType(com.epam.deltix.qsrv.hf.pub.md.DataType tbDataType) {
         DataType essentialDataType;
 
         if (tbDataType instanceof ArrayDataType) {
@@ -461,7 +460,7 @@ public class SchemaProcessor {
         return essentialDataType;
     }
 
-    public static ClickHouseDataType convertTimebaseDataTypeToRawClickhouseDataType(deltix.qsrv.hf.pub.md.DataType tbDataType) {
+    public static ClickHouseDataType convertTimebaseDataTypeToRawClickhouseDataType(com.epam.deltix.qsrv.hf.pub.md.DataType tbDataType) {
         ClickHouseDataType essentialDataType;
 
         if (tbDataType instanceof ArrayDataType) {

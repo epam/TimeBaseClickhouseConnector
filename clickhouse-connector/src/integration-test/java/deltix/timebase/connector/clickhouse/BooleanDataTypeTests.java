@@ -2,7 +2,7 @@ package deltix.timebase.connector.clickhouse;
 
 import deltix.clickhouse.schema.ColumnDeclaration;
 import deltix.clickhouse.schema.TableDeclaration;
-import deltix.qsrv.hf.tickdb.pub.DXTickStream;
+import com.epam.deltix.qsrv.hf.tickdb.pub.DXTickStream;
 import deltix.timebase.connector.clickhouse.timebase.BooleanMessage;
 import deltix.timebase.connector.clickhouse.timebase.NullableBooleanMessage;
 import org.apache.commons.lang3.tuple.Pair;

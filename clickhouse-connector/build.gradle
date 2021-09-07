@@ -30,55 +30,35 @@ configurations {
 
 dependencyManagement {
 	dependencies {
-		dependencySet(group: 'deltix', version: "${gflog_version}") {
-			entry 'deltix-gflog-api'
-			entry 'deltix-gflog-core'
-			entry 'deltix-gflog-jul'
-			entry 'deltix-gflog-jcl'
-			entry 'deltix-gflog-slf4j'
+		dependencySet(group: 'com.epam.deltix', version: "${gflogVersion}") {
+			entry 'gflog-api'
+			entry 'gflog-core'
+			entry 'gflog-jul'
+			entry 'gflog-jcl'
+			entry 'gflog-slf4j'
 		}
 
-		dependency("deltix:deltix-dfp:$dfp_version")
-		//dependency("deltix.qsrv:deltix-timebase-api-messages:${deltixMessageVersion}")
+		dependency ("com.epam.deltix:dfp:$dfpVersion")
 
-		dependencySet(group: 'deltix.qsrv', version: "6.0.44") {
-			entry('deltix-commons-messages') /*{
-                exclude 'deltix.qsrv:deltix-timebase-api-messages'
-            }*/
-			entry('deltix-commons-lang') /*{
-                exclude 'deltix.qsrv:deltix-timebase-api-messages'
-            }*/
-
+		dependencySet(group: 'org.finos.timebase-ce', version: "${timebaseVersion}") {
+			entry 'timebase-api'
+			entry 'timebase-client'
+			entry 'timebase-pub'
+			entry 'timebase-aerondirect'
 		}
 
-		dependencySet(group: 'deltix.qsrv', version: "6.0.35") {
-			entry('deltix-commons-util') /*{
-                exclude 'deltix.qsrv:deltix-timebase-api-messages'
-            }*/
-		}
-		dependencySet(group: 'deltix.qsrv.timebase', version: "${timebase_client_version}") {
-			entry('deltix-timebase-api') /*{
-                exclude 'deltix.qsrv:deltix-timebase-api-messages'
-            }*/
-			entry('deltix-timebase-client') /*{
-                exclude 'deltix.qsrv:deltix-timebase-api-messages'
-            }*/
-			entry('deltix-timebase-pub') /*{
-                exclude 'deltix.qsrv:deltix-timebase-api-messages'
-            }*/
-		}
+		dependency "com.epam.deltix:containers:3.1.2"
+
+		dependency "com.epam.deltix:timebase-lang:${commonsVersion}"
+		dependency "com.epam.deltix:timebase-util:${commonsVersion}"
+		dependency "com.epam.deltix:timebase-messages:${commonsVersion}"
+		dependency "com.epam.deltix:timebase-collections:${commonsVersion}"
 
 		dependencySet(group: 'deltix.clickhouse', version: "${clickhouse_client_version}") {
 			entry('clickhouse-client') /*{
                 exclude 'deltix:deltix-dfp'
             }*/
 		}
-
-//		dependency("org.hamcrest:hamcrest-library:$hamcrest_library_version")
-
-		//dependency("deltix.qsrv:deltix-commons-util:${commonsVersion}") /*{
-        //    exclude 'deltix.qsrv:deltix-timebase-api-messages'
-        //}*/
 	}
 }
 
@@ -94,30 +74,37 @@ dependencies {
 		exclude group: 'ch.qos.logback'
 	}
 
-	// Logger
-	implementation "deltix:deltix-gflog-api",
-			"deltix:deltix-gflog-core",
-			"deltix:deltix-gflog-jul"
-	runtimeOnly "deltix:deltix-gflog-jcl",
-			"deltix:deltix-gflog-slf4j"
+	compile "org.finos.timebase-ce:timebase-client:${timebaseVersion}"
+//           {
+//        exclude group: "net.java.dev.jna"
+//    }
 
+	implementation "org.finos.timebase-ce:timebase-client"
+	implementation "org.finos.timebase-ce:timebase-api"
+	implementation "org.finos.timebase-ce:timebase-pub"
+	implementation "org.finos.timebase-ce:timebase-aerondirect"
 
-	// Deltix suite
-	implementation("deltix:deltix-dfp")
-	//implementation("deltix.qsrv:deltix-timebase-api-messages")
-	//implementation("deltix.qsrv:deltix-commons-util")
+	implementation "com.epam.deltix:containers:3.1.2"
 
-	// Timebase suite
-	implementation("deltix.qsrv:deltix-commons-messages")
-	implementation("deltix.qsrv:deltix-commons-lang")
-	implementation("deltix.qsrv:deltix-commons-util")
+	implementation "com.epam.deltix:timebase-lang"
+	implementation "com.epam.deltix:timebase-util"
+	implementation "com.epam.deltix:timebase-messages"
+	implementation "com.epam.deltix:timebase-collections"
 
-	implementation("deltix.qsrv.timebase:deltix-timebase-api")
-	implementation("deltix.qsrv.timebase:deltix-timebase-client")
-	implementation("deltix.qsrv.timebase:deltix-timebase-pub")
+	implementation 'com.epam.deltix:dfp'
+
+	implementation "com.epam.deltix:gflog-api"
+	implementation "com.epam.deltix:gflog-core"
+
+	implementation 'org.apache.commons:commons-lang3:3.7'
+
+	//testImplementation 'com.google.guava:guava:20.0'
+
+	testImplementation 'junit:junit:4.12'
 
 	// Clickhouse client
-	implementation("deltix.clickhouse:clickhouse-client:${clickhouse_client_version}")
+	implementation 'ru.yandex.clickhouse:clickhouse-jdbc:0.3.1'
+	//implementation("deltix.clickhouse:clickhouse-client:${clickhouse_client_version}")
 
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'

@@ -1,30 +1,27 @@
 package deltix.timebase.connector.clickhouse.algos;
 
+import com.epam.deltix.gflog.api.*;
 import deltix.clickhouse.ClickhouseClient;
 import deltix.clickhouse.schema.ColumnDeclaration;
 import deltix.clickhouse.schema.TableDeclaration;
 import deltix.clickhouse.schema.types.*;
 import deltix.clickhouse.util.CheckedConsumer;
 import deltix.clickhouse.util.SqlQueryHelper;
-import deltix.dfp.Decimal64Utils;
-import deltix.gflog.Log;
-import deltix.gflog.LogEntry;
-import deltix.gflog.LogFactory;
-import deltix.qsrv.hf.pub.NullValueException;
-import deltix.qsrv.hf.pub.RawMessage;
-import deltix.qsrv.hf.pub.ReadableValue;
-import deltix.qsrv.hf.pub.codec.NonStaticFieldInfo;
-import deltix.qsrv.hf.pub.codec.RecordClassInfo;
-import deltix.qsrv.hf.pub.codec.UnboundDecoder;
-import deltix.qsrv.hf.pub.md.*;
-import deltix.qsrv.hf.pub.md.ArrayDataType;
-import deltix.qsrv.hf.pub.md.DataType;
-import deltix.qsrv.hf.pub.md.DateTimeDataType;
-import deltix.qsrv.hf.tickdb.pub.query.TypedMessageSource;
+import com.epam.deltix.dfp.Decimal64Utils;
+import com.epam.deltix.qsrv.hf.pub.NullValueException;
+import com.epam.deltix.qsrv.hf.pub.RawMessage;
+import com.epam.deltix.qsrv.hf.pub.ReadableValue;
+import com.epam.deltix.qsrv.hf.pub.codec.NonStaticFieldInfo;
+import com.epam.deltix.qsrv.hf.pub.codec.RecordClassInfo;
+import com.epam.deltix.qsrv.hf.pub.codec.UnboundDecoder;
+import com.epam.deltix.qsrv.hf.pub.md.*;
+import com.epam.deltix.qsrv.hf.pub.md.ArrayDataType;
+import com.epam.deltix.qsrv.hf.pub.md.DataType;
+import com.epam.deltix.qsrv.hf.pub.md.DateTimeDataType;
+import com.epam.deltix.qsrv.hf.tickdb.pub.query.TypedMessageSource;
 import deltix.timebase.connector.clickhouse.functional.CheckedBiConsumer;
 import deltix.timebase.connector.clickhouse.util.ClickhouseUtil;
-import deltix.util.memory.MemoryDataInput;
-import org.apache.commons.lang3.NotImplementedException;
+import com.epam.deltix.util.memory.MemoryDataInput;
 import ru.yandex.clickhouse.ClickHouseArray;
 import ru.yandex.clickhouse.ClickHousePreparedStatementImpl;
 
@@ -387,7 +384,7 @@ public class UnboundTableWriter implements Closeable {
                     }
                 };
             } else {
-                throw new NotImplementedException();
+                throw new UnsupportedOperationException();
             }
 
             result[i] = wrapCodecException(codec);

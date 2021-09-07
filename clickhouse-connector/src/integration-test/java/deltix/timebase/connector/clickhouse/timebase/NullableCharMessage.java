@@ -1,9 +1,6 @@
 package deltix.timebase.connector.clickhouse.timebase;
 
-import deltix.timebase.messages.InstrumentMessage;
-import deltix.timebase.messages.SchemaDataType;
-import deltix.timebase.messages.SchemaElement;
-import deltix.timebase.messages.SchemaType;
+import com.epam.deltix.timebase.messages.*;
 
 public class NullableCharMessage extends InstrumentMessage {
     public static final String CLASS_NAME = NullableCharMessage.class.getName();

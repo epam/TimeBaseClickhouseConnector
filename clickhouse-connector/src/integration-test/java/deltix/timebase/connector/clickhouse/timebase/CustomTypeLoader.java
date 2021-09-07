@@ -1,9 +1,9 @@
 package deltix.timebase.connector.clickhouse.timebase;
 
-import deltix.qsrv.hf.pub.TypeLoader;
-import deltix.qsrv.hf.pub.md.ClassDescriptor;
-import deltix.qsrv.hf.pub.md.RecordClassDescriptor;
-import deltix.timebase.messages.SchemaElement;
+import com.epam.deltix.qsrv.hf.pub.TypeLoader;
+import com.epam.deltix.qsrv.hf.pub.md.ClassDescriptor;
+import com.epam.deltix.qsrv.hf.pub.md.RecordClassDescriptor;
+import com.epam.deltix.timebase.messages.SchemaElement;
 
 import java.util.HashMap;
 

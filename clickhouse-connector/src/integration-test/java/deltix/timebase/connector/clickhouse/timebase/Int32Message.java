@@ -1,10 +1,10 @@
 package deltix.timebase.connector.clickhouse.timebase;
 
-import deltix.qsrv.hf.pub.md.IntegerDataType;
-import deltix.timebase.messages.InstrumentMessage;
-import deltix.timebase.messages.SchemaDataType;
-import deltix.timebase.messages.SchemaElement;
-import deltix.timebase.messages.SchemaType;
+import com.epam.deltix.qsrv.hf.pub.md.IntegerDataType;
+import com.epam.deltix.timebase.messages.InstrumentMessage;
+import com.epam.deltix.timebase.messages.SchemaDataType;
+import com.epam.deltix.timebase.messages.SchemaElement;
+import com.epam.deltix.timebase.messages.SchemaType;
 
 
 public class Int32Message extends InstrumentMessage {

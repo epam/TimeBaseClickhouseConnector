@@ -1,6 +1,6 @@
 package deltix.timebase.connector.clickhouse.timebase;
 
-import deltix.timebase.messages.*;
+import com.epam.deltix.timebase.messages.*;
 
 public class NullableBooleanMessage extends InstrumentMessage {
     public static final String CLASS_NAME = NullableBooleanMessage.class.getName();

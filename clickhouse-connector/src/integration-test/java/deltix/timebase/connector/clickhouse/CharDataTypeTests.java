@@ -2,8 +2,8 @@ package deltix.timebase.connector.clickhouse;
 
 import deltix.clickhouse.schema.ColumnDeclaration;
 import deltix.clickhouse.schema.TableDeclaration;
-import deltix.qsrv.hf.pub.md.CharDataType;
-import deltix.qsrv.hf.tickdb.pub.DXTickStream;
+import com.epam.deltix.qsrv.hf.pub.md.CharDataType;
+import com.epam.deltix.qsrv.hf.tickdb.pub.DXTickStream;
 import deltix.timebase.connector.clickhouse.timebase.CharMessage;
 import deltix.timebase.connector.clickhouse.timebase.NullableCharMessage;
 import org.apache.commons.lang3.tuple.Pair;

@@ -3,7 +3,7 @@ package deltix.timebase.connector.clickhouse;
 import deltix.clickhouse.schema.ColumnDeclaration;
 import deltix.clickhouse.schema.TableDeclaration;
 import deltix.dfp.Decimal64Utils;
-import deltix.qsrv.hf.tickdb.pub.DXTickStream;
+import com.epam.deltix.qsrv.hf.tickdb.pub.DXTickStream;
 import deltix.timebase.connector.clickhouse.timebase.Decimal64Message;
 import deltix.timebase.connector.clickhouse.timebase.NullableDecimal64Message;
 import org.apache.commons.lang3.tuple.Pair;

@@ -1,11 +1,10 @@
 package deltix.timebase.connector.clickhouse.timebase;
 
-import deltix.timebase.messages.*;
+import com.epam.deltix.timebase.messages.*;
 
 /**
  * Basic information about a market trade.
  */
-@OldElementName("deltix.qsrv.hf.pub.TradeMessage")
 @SchemaElement(
         name = "deltix.timebase.messages.messages.TradeMessage",
         title = "Trade Message"
@@ -70,14 +69,14 @@ public class TradeTestMessage extends InstrumentMessage {
      * @return true if Exchange Id is not null
      */
     public boolean hasExchangeId() {
-        return exchangeId != deltix.timebase.messages.TypeConstants.EXCHANGE_NULL;
+        return exchangeId != TypeConstants.EXCHANGE_NULL;
     }
 
     /**
      * Exchange code compressed to long using ALPHANUMERIC(10) encoding
      */
     public void nullifyExchangeId() {
-        this.exchangeId = deltix.timebase.messages.TypeConstants.EXCHANGE_NULL;
+        this.exchangeId = TypeConstants.EXCHANGE_NULL;
     }
 
     /**
@@ -113,7 +112,7 @@ public class TradeTestMessage extends InstrumentMessage {
      * The trade price.
      */
     public void nullifyPrice() {
-        this.price = deltix.timebase.messages.TypeConstants.IEEE64_NULL;
+        this.price = TypeConstants.IEEE64_NULL;
     }
 
     /**
@@ -149,7 +148,7 @@ public class TradeTestMessage extends InstrumentMessage {
      * The trade size.
      */
     public void nullifySize() {
-        this.size = deltix.timebase.messages.TypeConstants.IEEE64_NULL;
+        this.size = TypeConstants.IEEE64_NULL;
     }
 
     /**
@@ -217,7 +216,7 @@ public class TradeTestMessage extends InstrumentMessage {
      * Net change from previous days closing price vs. last traded price.
      */
     public void nullifyNetPriceChange() {
-        this.netPriceChange = deltix.timebase.messages.TypeConstants.IEEE64_NULL;
+        this.netPriceChange = TypeConstants.IEEE64_NULL;
     }
 
     /**
@@ -242,14 +241,14 @@ public class TradeTestMessage extends InstrumentMessage {
      * @return true if Sequence Number is not null
      */
     public boolean hasSequenceNumber() {
-        return sequenceNumber != deltix.timebase.messages.TypeConstants.INT64_NULL;
+        return sequenceNumber != TypeConstants.INT64_NULL;
     }
 
     /**
      * Market specific identifier of the given event in a sequence of market events.
      */
     public void nullifySequenceNumber() {
-        this.sequenceNumber = deltix.timebase.messages.TypeConstants.INT64_NULL;
+        this.sequenceNumber = TypeConstants.INT64_NULL;
     }
 
     /**
@@ -281,11 +280,11 @@ public class TradeTestMessage extends InstrumentMessage {
     @Override
     public TradeTestMessage reset() {
         super.reset();
-        exchangeId = deltix.timebase.messages.TypeConstants.EXCHANGE_NULL;
-        price = deltix.timebase.messages.TypeConstants.IEEE64_NULL;
-        size = deltix.timebase.messages.TypeConstants.IEEE64_NULL;
+        exchangeId = TypeConstants.EXCHANGE_NULL;
+        price = TypeConstants.IEEE64_NULL;
+        size = TypeConstants.IEEE64_NULL;
         condition = null;
-        netPriceChange = deltix.timebase.messages.TypeConstants.IEEE64_NULL;
+        netPriceChange = TypeConstants.IEEE64_NULL;
         return this;
     }
 

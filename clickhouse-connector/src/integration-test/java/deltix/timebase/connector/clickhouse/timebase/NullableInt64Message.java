@@ -1,6 +1,6 @@
 package deltix.timebase.connector.clickhouse.timebase;
 
-import deltix.qsrv.hf.pub.md.IntegerDataType;
+import com.epam.deltix.qsrv.hf.pub.md.IntegerDataType;
 import deltix.timebase.messages.InstrumentMessage;
 import deltix.timebase.messages.SchemaDataType;
 import deltix.timebase.messages.SchemaElement;

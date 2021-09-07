@@ -1,8 +1,7 @@
 package deltix.timebase.connector.clickhouse.timebase;
 
 
-import deltix.timebase.messages.*;
-
+import com.epam.deltix.timebase.messages.*;
 /**
  * This class may represent both exchange-local top of the book (BBO) as well as National Best Bid Offer (NBBO).
  * You can use method {link #isNBBO()} to filter out NBBO messages.
@@ -111,14 +110,14 @@ public class BestBidOfferTestMessage extends InstrumentMessage {
      * @return true if Is National is not null
      */
     public boolean hasIsNational() {
-        return isNational != deltix.timebase.messages.TypeConstants.BOOLEAN_NULL;
+        return isNational != TypeConstants.BOOLEAN_NULL;
     }
 
     /**
      * Tells whether this is an aggregated national quote.
      */
     public void nullifyIsNational() {
-        this.isNational = deltix.timebase.messages.TypeConstants.BOOLEAN_NULL;
+        this.isNational = TypeConstants.BOOLEAN_NULL;
     }
 
     /**
@@ -162,7 +161,7 @@ public class BestBidOfferTestMessage extends InstrumentMessage {
      * If this is a one-sided message with offer data only, bidPrice is set to NULL.
      */
     public void nullifyBidPrice() {
-        this.bidPrice = deltix.timebase.messages.TypeConstants.IEEE64_NULL;
+        this.bidPrice = TypeConstants.IEEE64_NULL;
     }
 
     /**
@@ -206,7 +205,7 @@ public class BestBidOfferTestMessage extends InstrumentMessage {
      * If this is a one-sided message with offer data only, bidSize is set to NULL.
      */
     public void nullifyBidSize() {
-        this.bidSize = deltix.timebase.messages.TypeConstants.IEEE64_NULL;
+        this.bidSize = TypeConstants.IEEE64_NULL;
     }
 
     /**
@@ -236,14 +235,14 @@ public class BestBidOfferTestMessage extends InstrumentMessage {
      * @return true if Bid Exchange Id is not null
      */
     public boolean hasBidExchangeId() {
-        return bidExchangeId != deltix.timebase.messages.TypeConstants.INT64_NULL;
+        return bidExchangeId != TypeConstants.INT64_NULL;
     }
 
     /**
      * Vendor-specific market code, or NULL if this is a one-sided message with offer data only.
      */
     public void nullifyBidExchangeId() {
-        this.bidExchangeId = deltix.timebase.messages.TypeConstants.INT64_NULL;
+        this.bidExchangeId = TypeConstants.INT64_NULL;
     }
 
     /**
@@ -272,14 +271,14 @@ public class BestBidOfferTestMessage extends InstrumentMessage {
      * @return true if Bid Num Of Orders is not null
      */
     public boolean hasBidNumOfOrders() {
-        return bidNumOfOrders != deltix.timebase.messages.TypeConstants.INT32_NULL;
+        return bidNumOfOrders != TypeConstants.INT32_NULL;
     }
 
     /**
      * Bid Number Of Orders.
      */
     public void nullifyBidNumOfOrders() {
-        this.bidNumOfOrders = deltix.timebase.messages.TypeConstants.INT32_NULL;
+        this.bidNumOfOrders = TypeConstants.INT32_NULL;
     }
 
     /**
@@ -364,7 +363,7 @@ public class BestBidOfferTestMessage extends InstrumentMessage {
      * If this is a one-sided message with bid data only, offerPrice is set to NULL.
      */
     public void nullifyOfferPrice() {
-        this.offerPrice = deltix.timebase.messages.TypeConstants.IEEE64_NULL;
+        this.offerPrice = TypeConstants.IEEE64_NULL;
     }
 
     /**
@@ -408,7 +407,7 @@ public class BestBidOfferTestMessage extends InstrumentMessage {
      * If this is a one-sided message with bid data only, offerSize is set to NULL.
      */
     public void nullifyOfferSize() {
-        this.offerSize = deltix.timebase.messages.TypeConstants.IEEE64_NULL;
+        this.offerSize = TypeConstants.IEEE64_NULL;
     }
 
     /**
@@ -438,14 +437,14 @@ public class BestBidOfferTestMessage extends InstrumentMessage {
      * @return true if Offer Exchange Id is not null
      */
     public boolean hasOfferExchangeId() {
-        return offerExchangeId != deltix.timebase.messages.TypeConstants.INT64_NULL;
+        return offerExchangeId != TypeConstants.INT64_NULL;
     }
 
     /**
      * Vendor-specific market code, or NULL if this is a one-sided message with bid data only.
      */
     public void nullifyOfferExchangeId() {
-        this.offerExchangeId = deltix.timebase.messages.TypeConstants.INT64_NULL;
+        this.offerExchangeId = TypeConstants.INT64_NULL;
     }
 
     /**
@@ -474,14 +473,14 @@ public class BestBidOfferTestMessage extends InstrumentMessage {
      * @return true if Offer Num Of Orders is not null
      */
     public boolean hasOfferNumOfOrders() {
-        return offerNumOfOrders != deltix.timebase.messages.TypeConstants.INT32_NULL;
+        return offerNumOfOrders != TypeConstants.INT32_NULL;
     }
 
     /**
      * Offer Number Of Orders
      */
     public void nullifyOfferNumOfOrders() {
-        this.offerNumOfOrders = deltix.timebase.messages.TypeConstants.INT32_NULL;
+        this.offerNumOfOrders = TypeConstants.INT32_NULL;
     }
 
     /**
@@ -547,14 +546,14 @@ public class BestBidOfferTestMessage extends InstrumentMessage {
      * @return true if Sequence Number is not null
      */
     public boolean hasSequenceNumber() {
-        return sequenceNumber != deltix.timebase.messages.TypeConstants.INT64_NULL;
+        return sequenceNumber != TypeConstants.INT64_NULL;
     }
 
     /**
      * Market specific identifier of the given event in a sequence of market events.
      */
     public void nullifySequenceNumber() {
-        this.sequenceNumber = deltix.timebase.messages.TypeConstants.INT64_NULL;
+        this.sequenceNumber = TypeConstants.INT64_NULL;
     }
 
     /**
@@ -592,16 +591,16 @@ public class BestBidOfferTestMessage extends InstrumentMessage {
     @Override
     public BestBidOfferTestMessage reset() {
         super.reset();
-        isNational = deltix.timebase.messages.TypeConstants.BOOLEAN_NULL;
-        bidPrice = deltix.timebase.messages.TypeConstants.IEEE64_NULL;
-        bidSize = deltix.timebase.messages.TypeConstants.IEEE64_NULL;
-        bidExchangeId = deltix.timebase.messages.TypeConstants.EXCHANGE_NULL;
-        bidNumOfOrders = deltix.timebase.messages.TypeConstants.INT32_NULL;
+        isNational = TypeConstants.BOOLEAN_NULL;
+        bidPrice = TypeConstants.IEEE64_NULL;
+        bidSize = TypeConstants.IEEE64_NULL;
+        bidExchangeId = TypeConstants.EXCHANGE_NULL;
+        bidNumOfOrders = TypeConstants.INT32_NULL;
         bidQuoteId = null;
-        offerPrice = deltix.timebase.messages.TypeConstants.IEEE64_NULL;
-        offerSize = deltix.timebase.messages.TypeConstants.IEEE64_NULL;
-        offerExchangeId = deltix.timebase.messages.TypeConstants.EXCHANGE_NULL;
-        offerNumOfOrders = deltix.timebase.messages.TypeConstants.INT32_NULL;
+        offerPrice = TypeConstants.IEEE64_NULL;
+        offerSize = TypeConstants.IEEE64_NULL;
+        offerExchangeId = TypeConstants.EXCHANGE_NULL;
+        offerNumOfOrders = TypeConstants.INT32_NULL;
         offerQuoteId = null;
         return this;
     }

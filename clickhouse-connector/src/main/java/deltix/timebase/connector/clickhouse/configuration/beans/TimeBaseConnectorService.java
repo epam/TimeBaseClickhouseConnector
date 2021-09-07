@@ -1,8 +1,8 @@
 package deltix.timebase.connector.clickhouse.configuration.beans;
 
-import deltix.qsrv.hf.spi.conn.Disconnectable;
-import deltix.qsrv.hf.tickdb.pub.DXTickDB;
-import deltix.qsrv.hf.tickdb.pub.TickDBFactory;
+import com.epam.deltix.qsrv.hf.spi.conn.Disconnectable;
+import com.epam.deltix.qsrv.hf.tickdb.pub.DXTickDB;
+import com.epam.deltix.qsrv.hf.tickdb.pub.TickDBFactory;
 import deltix.timebase.connector.clickhouse.configuration.properties.TimebaseProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

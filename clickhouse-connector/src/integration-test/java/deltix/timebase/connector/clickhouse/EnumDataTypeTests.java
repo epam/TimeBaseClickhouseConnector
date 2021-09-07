@@ -2,7 +2,7 @@ package deltix.timebase.connector.clickhouse;
 
 import deltix.clickhouse.schema.ColumnDeclaration;
 import deltix.clickhouse.schema.TableDeclaration;
-import deltix.qsrv.hf.tickdb.pub.DXTickStream;
+import com.epam.deltix.qsrv.hf.tickdb.pub.DXTickStream;
 import deltix.timebase.connector.clickhouse.timebase.EnumMessage;
 import deltix.timebase.connector.clickhouse.timebase.NullableEnumMessage;
 import deltix.timebase.connector.clickhouse.timebase.TestEnum;

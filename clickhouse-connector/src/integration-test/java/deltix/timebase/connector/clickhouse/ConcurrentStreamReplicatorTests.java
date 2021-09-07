@@ -10,16 +10,14 @@ import deltix.clickhouse.schema.types.DataTypes;
 import deltix.clickhouse.schema.types.NullableDataType;
 import deltix.clickhouse.selector.SelectBuilder;
 import deltix.clickhouse.util.SelectQueryHelper;
-import deltix.gflog.Log;
-import deltix.gflog.LogFactory;
-import deltix.gflog.LogLevel;
-import deltix.qsrv.hf.pub.ExchangeCodec;
-import deltix.qsrv.hf.pub.codec.FieldLayout;
-import deltix.qsrv.hf.pub.codec.RecordLayout;
-import deltix.qsrv.hf.pub.md.ClassDescriptor;
-import deltix.qsrv.hf.pub.md.Introspector;
-import deltix.qsrv.hf.pub.md.RecordClassDescriptor;
-import deltix.qsrv.hf.tickdb.pub.*;
+import com.epam.deltix.gflog.api.*;
+import com.epam.deltix.qsrv.hf.pub.ExchangeCodec;
+import com.epam.deltix.qsrv.hf.pub.codec.FieldLayout;
+import com.epam.deltix.qsrv.hf.pub.codec.RecordLayout;
+import com.epam.deltix.qsrv.hf.pub.md.ClassDescriptor;
+import com.epam.deltix.qsrv.hf.pub.md.Introspector;
+import com.epam.deltix.qsrv.hf.pub.md.RecordClassDescriptor;
+import com.epam.deltix.qsrv.hf.tickdb.pub.*;
 import deltix.timebase.connector.clickhouse.algos.ColumnDeclarationEx;
 import deltix.timebase.connector.clickhouse.algos.SchemaProcessor;
 import deltix.timebase.connector.clickhouse.configuration.properties.ClickhouseProperties;
@@ -29,7 +27,7 @@ import deltix.timebase.connector.clickhouse.containers.DockerTimebaseContainer;
 import deltix.timebase.connector.clickhouse.services.ReplicatorService;
 import deltix.timebase.connector.clickhouse.timebase.BestBidOfferTestMessage;
 import deltix.timebase.connector.clickhouse.timebase.TradeTestMessage;
-import deltix.timebase.messages.InstrumentMessage;
+import com.epam.deltix.timebase.messages.InstrumentMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.junit.jupiter.api.BeforeAll;
@@ -406,81 +404,81 @@ public class ConcurrentStreamReplicatorTests {
         return count;
     }
 
-//    @Test
-    public void concurrentTest() throws InterruptedException {
-        try {
-            int expectedMessageCount = MESSAGE_COUNT;
-
-            List<DXTickStream> tickStreams = new ArrayList<DXTickStream>();
-
-            tickStreams.add(loadData(BestBidOfferTestMessage.class, MESSAGE_COUNT, value -> generateBBO(value)));
-            tickStreams.add(loadData(TradeTestMessage.class, MESSAGE_COUNT, value -> generateTrades(value)));
-            tickStreams.add(loadData(BestBidOfferTestMessage.class, MESSAGE_COUNT, value -> generateBBO(value)));
-            tickStreams.add(loadData(TradeTestMessage.class, MESSAGE_COUNT, value -> generateTrades(value)));
-            tickStreams.add(loadData(BestBidOfferTestMessage.class, MESSAGE_COUNT, value -> generateBBO(value)));
-            tickStreams.add(loadData(TradeTestMessage.class, MESSAGE_COUNT, value -> generateTrades(value)));
-            tickStreams.add(loadData(BestBidOfferTestMessage.class, MESSAGE_COUNT, value -> generateBBO(value)));
-            tickStreams.add(loadData(TradeTestMessage.class, MESSAGE_COUNT, value -> generateTrades(value)));
-            tickStreams.add(loadData(BestBidOfferTestMessage.class, MESSAGE_COUNT, value -> generateBBO(value)));
-            tickStreams.add(loadData(TradeTestMessage.class, MESSAGE_COUNT, value -> generateTrades(value)));
-            tickStreams.add(loadData(BestBidOfferTestMessage.class, MESSAGE_COUNT, value -> generateBBO(value)));
-            tickStreams.add(loadData(TradeTestMessage.class, MESSAGE_COUNT, value -> generateTrades(value)));
-            tickStreams.add(loadData(BestBidOfferTestMessage.class, MESSAGE_COUNT, value -> generateBBO(value)));
-            tickStreams.add(loadData(TradeTestMessage.class, MESSAGE_COUNT, value -> generateTrades(value)));
-            tickStreams.add(loadData(BestBidOfferTestMessage.class, MESSAGE_COUNT, value -> generateBBO(value)));
-            tickStreams.add(loadData(TradeTestMessage.class, MESSAGE_COUNT, value -> generateTrades(value)));
-
-            LOG.info().append("Data streams created.").commit();
-            final ReplicationProperties replicationProperties = new ReplicationProperties();
-            final List<String> streams = tickStreams.stream().map(t -> t.getKey()).collect(Collectors.toList());
-            replicationProperties.setStreams(streams);
-            replicationProperties.setFlushMessageCount(10_000);
-            replicationProperties.setFlushTimeoutMs(1_000);
-
-            final ReplicatorService service = new ReplicatorService(clickhouseClient, tickDB, clickhouseProperties, replicationProperties);
-            service.startReplicators();
-
-            LOG.info().append("Starting replication.").commit();
-
-            final List<TableDeclaration> tableDeclarations = tickStreams.stream().map(stream -> SchemaProcessor.timebaseStreamToClickhouseTable(stream, new HashMap<>(), new ArrayList<>(), CLICKHOUSE_DATABASE_NAME)).collect(Collectors.toList());
-            final List<TableDeclaration> tableDeclarations2 = new ArrayList<>(tableDeclarations);
-            while (tableDeclarations.size() > 0) {
-                for (int i = tableDeclarations.size(); i-- > 0; ) {
-                    final TableDeclaration tableDeclaration = tableDeclarations.get(i);
-                    final TableIdentity tableIdentity = tableDeclaration.getTableIdentity();
-                    boolean isTableExists = clickhouseClient.existsTable(tableIdentity);
-                    if (isTableExists && expectedMessageCount == getCount(tableIdentity)) {
-                        tableDeclarations.remove(i);
-                    }
-                }
-                Thread.sleep(1000);
-            }
-            service.destroy();
-            LOG.info().append("Replication finished.").commit();
-
-            final int size = tableDeclarations2.size();
-            final int poolSize = 8;
-            ThreadPoolExecutor executor = new ThreadPoolExecutor(poolSize, poolSize, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue());
-            for (int i = 0; i < size; i++) {
-                final TableDeclaration tableDeclaration = tableDeclarations2.get(i);
-                final DXTickStream tickStream = tickStreams.get(i);
-                if (tableDeclaration.getTableIdentity().getTableName().contains("BestBidOfferMessage")) {
-                    final String sequenceNumber = getClickhouseColumn(tickStream, BestBidOfferTestMessage.class, BestBidOfferTestMessage::getSequenceNumber).getDbColumnName();
-                    executor.execute(() -> checkAllValues(tableDeclaration, sequenceNumber, tickStream, pair -> verifyBboValues(pair.getLeft(), pair.getMiddle(), pair.getRight())));
-                } else if (tableDeclaration.getTableIdentity().getTableName().contains("TradeMessage")) {
-                    final String sequenceNumber = getClickhouseColumn(tickStream, TradeTestMessage.class, TradeTestMessage::getSequenceNumber).getDbColumnName();
-                    executor.execute(() -> checkAllValues(tableDeclaration, sequenceNumber, tickStream, pair -> verifyTradeValues(pair.getLeft(), pair.getMiddle(), pair.getRight())));
-                }
-            }
-            while( executor.getCompletedTaskCount() != size){
-                Thread.sleep(5000);
-            }
-            LOG.info().append("Concurrent test finished.").commit();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            LOG.error().append("Concurrent test failed.").append(e).commit();
-        }
-    }
+////    @Test
+//    public void concurrentTest() throws InterruptedException {
+//        try {
+//            int expectedMessageCount = MESSAGE_COUNT;
+//
+//            List<DXTickStream> tickStreams = new ArrayList<DXTickStream>();
+//
+//            tickStreams.add(loadData(BestBidOfferTestMessage.class, MESSAGE_COUNT, value -> generateBBO(value)));
+//            tickStreams.add(loadData(TradeTestMessage.class, MESSAGE_COUNT, value -> generateTrades(value)));
+//            tickStreams.add(loadData(BestBidOfferTestMessage.class, MESSAGE_COUNT, value -> generateBBO(value)));
+//            tickStreams.add(loadData(TradeTestMessage.class, MESSAGE_COUNT, value -> generateTrades(value)));
+//            tickStreams.add(loadData(BestBidOfferTestMessage.class, MESSAGE_COUNT, value -> generateBBO(value)));
+//            tickStreams.add(loadData(TradeTestMessage.class, MESSAGE_COUNT, value -> generateTrades(value)));
+//            tickStreams.add(loadData(BestBidOfferTestMessage.class, MESSAGE_COUNT, value -> generateBBO(value)));
+//            tickStreams.add(loadData(TradeTestMessage.class, MESSAGE_COUNT, value -> generateTrades(value)));
+//            tickStreams.add(loadData(BestBidOfferTestMessage.class, MESSAGE_COUNT, value -> generateBBO(value)));
+//            tickStreams.add(loadData(TradeTestMessage.class, MESSAGE_COUNT, value -> generateTrades(value)));
+//            tickStreams.add(loadData(BestBidOfferTestMessage.class, MESSAGE_COUNT, value -> generateBBO(value)));
+//            tickStreams.add(loadData(TradeTestMessage.class, MESSAGE_COUNT, value -> generateTrades(value)));
+//            tickStreams.add(loadData(BestBidOfferTestMessage.class, MESSAGE_COUNT, value -> generateBBO(value)));
+//            tickStreams.add(loadData(TradeTestMessage.class, MESSAGE_COUNT, value -> generateTrades(value)));
+//            tickStreams.add(loadData(BestBidOfferTestMessage.class, MESSAGE_COUNT, value -> generateBBO(value)));
+//            tickStreams.add(loadData(TradeTestMessage.class, MESSAGE_COUNT, value -> generateTrades(value)));
+//
+//            LOG.info().append("Data streams created.").commit();
+//            final ReplicationProperties replicationProperties = new ReplicationProperties();
+//            final List<String> streams = tickStreams.stream().map(t -> t.getKey()).collect(Collectors.toList());
+//            replicationProperties.setStreams(streams);
+//            replicationProperties.setFlushMessageCount(10_000);
+//            replicationProperties.setFlushTimeoutMs(1_000);
+//
+//            final ReplicatorService service = new ReplicatorService(clickhouseClient, tickDB, clickhouseProperties, replicationProperties);
+//            service.startReplicators();
+//
+//            LOG.info().append("Starting replication.").commit();
+//
+//            final List<TableDeclaration> tableDeclarations = tickStreams.stream().map(stream -> SchemaProcessor.timebaseStreamToClickhouseTable(stream, new HashMap<>(), new ArrayList<>(), CLICKHOUSE_DATABASE_NAME)).collect(Collectors.toList());
+//            final List<TableDeclaration> tableDeclarations2 = new ArrayList<>(tableDeclarations);
+//            while (tableDeclarations.size() > 0) {
+//                for (int i = tableDeclarations.size(); i-- > 0; ) {
+//                    final TableDeclaration tableDeclaration = tableDeclarations.get(i);
+//                    final TableIdentity tableIdentity = tableDeclaration.getTableIdentity();
+//                    boolean isTableExists = clickhouseClient.existsTable(tableIdentity);
+//                    if (isTableExists && expectedMessageCount == getCount(tableIdentity)) {
+//                        tableDeclarations.remove(i);
+//                    }
+//                }
+//                Thread.sleep(1000);
+//            }
+//            service.destroy();
+//            LOG.info().append("Replication finished.").commit();
+//
+//            final int size = tableDeclarations2.size();
+//            final int poolSize = 8;
+//            ThreadPoolExecutor executor = new ThreadPoolExecutor(poolSize, poolSize, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue());
+//            for (int i = 0; i < size; i++) {
+//                final TableDeclaration tableDeclaration = tableDeclarations2.get(i);
+//                final DXTickStream tickStream = tickStreams.get(i);
+//                if (tableDeclaration.getTableIdentity().getTableName().contains("BestBidOfferMessage")) {
+//                    final String sequenceNumber = getClickhouseColumn(tickStream, BestBidOfferTestMessage.class, BestBidOfferTestMessage::getSequenceNumber).getDbColumnName();
+//                    executor.execute(() -> checkAllValues(tableDeclaration, sequenceNumber, tickStream, pair -> verifyBboValues(pair.getLeft(), pair.getMiddle(), pair.getRight())));
+//                } else if (tableDeclaration.getTableIdentity().getTableName().contains("TradeMessage")) {
+//                    final String sequenceNumber = getClickhouseColumn(tickStream, TradeTestMessage.class, TradeTestMessage::getSequenceNumber).getDbColumnName();
+//                    executor.execute(() -> checkAllValues(tableDeclaration, sequenceNumber, tickStream, pair -> verifyTradeValues(pair.getLeft(), pair.getMiddle(), pair.getRight())));
+//                }
+//            }
+//            while( executor.getCompletedTaskCount() != size){
+//                Thread.sleep(5000);
+//            }
+//            LOG.info().append("Concurrent test finished.").commit();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//            LOG.error().append("Concurrent test failed.").append(e).commit();
+//        }
+//    }
 
     private void verifyBboValues(DXTickStream tickStream, List<Map<String, Object>> allValues, Integer offset) {
         final String bidPriceColumnName = getClickhouseColumn(tickStream, BestBidOfferTestMessage.class, BestBidOfferTestMessage::getBidPrice).getDbColumnName();

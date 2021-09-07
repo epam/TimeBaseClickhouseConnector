@@ -1,11 +1,11 @@
 package deltix.timebase.connector.clickhouse.services;
 
+import com.epam.deltix.gflog.api.Log;
+import com.epam.deltix.gflog.api.LogFactory;
 import deltix.clickhouse.ClickhouseClient;
-import deltix.gflog.Log;
-import deltix.gflog.LogFactory;
-import deltix.qsrv.hf.tickdb.pub.DXTickDB;
-import deltix.qsrv.hf.tickdb.pub.TickDB;
-import deltix.qsrv.hf.tickdb.pub.TickStream;
+import com.epam.deltix.qsrv.hf.tickdb.pub.DXTickDB;
+import com.epam.deltix.qsrv.hf.tickdb.pub.TickDB;
+import com.epam.deltix.qsrv.hf.tickdb.pub.TickStream;
 import deltix.timebase.connector.clickhouse.algos.StreamReplicator;
 import deltix.timebase.connector.clickhouse.configuration.properties.ClickhouseProperties;
 import deltix.timebase.connector.clickhouse.configuration.properties.ReplicationProperties;

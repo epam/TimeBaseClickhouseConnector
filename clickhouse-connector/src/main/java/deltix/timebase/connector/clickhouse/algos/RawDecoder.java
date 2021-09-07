@@ -4,17 +4,17 @@ import deltix.clickhouse.schema.types.Int16DataType;
 import deltix.clickhouse.schema.types.Int32DataType;
 import deltix.clickhouse.schema.types.Int64DataType;
 import deltix.clickhouse.schema.types.Int8DataType;
-import deltix.dfp.Decimal64Utils;
-import deltix.qsrv.hf.pub.NullValueException;
-import deltix.qsrv.hf.pub.ReadableValue;
-import deltix.qsrv.hf.pub.codec.NonStaticFieldInfo;
-import deltix.qsrv.hf.pub.codec.UnboundDecoder;
-import deltix.qsrv.hf.pub.md.*;
+import com.epam.deltix.dfp.Decimal64Utils;
+import com.epam.deltix.qsrv.hf.pub.NullValueException;
+import com.epam.deltix.qsrv.hf.pub.ReadableValue;
+import com.epam.deltix.qsrv.hf.pub.codec.NonStaticFieldInfo;
+import com.epam.deltix.qsrv.hf.pub.codec.UnboundDecoder;
+import com.epam.deltix.qsrv.hf.pub.md.*;
 
 import java.math.BigDecimal;
 import java.util.*;
 
-import static deltix.qsrv.hf.pub.RawMessageManipulator.OBJECT_CLASS_NAME;
+import static com.epam.deltix.qsrv.hf.pub.MessageUtils.OBJECT_CLASS_NAME;
 
 public class RawDecoder {
 
