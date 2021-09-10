@@ -10,11 +10,11 @@ This example serves **only** for demonstration purposes to show the replication 
 **1. Launch ClickHouse**
   * Get ClickHouse Docker image<br>
   ```bash
-  docker pull TBD
+  docker pull yandex/clickhouse-server
   ```
-  * Enter your password and run ClickHouse<br>
+  * Run ClickHouse<br>
   ```bash
-  TBD
+  docker run -d --name clickhouse-server --ulimit nofile=262144:262144 yandex/clickhouse-server
   ```
 **2. Launch TimeBase**
   * Get and run the TimeBase Community Edition<br>
@@ -65,7 +65,7 @@ OPTIONS (POLYMORPHIC; PERIODICITY = 'IRREGULAR'; HIGHAVAILABILITY = FALSE)
   ```
   * Build the ClickHouse replicator<br>
   ```bash
-  ./gradlew clean build
+  gradlew clean build
   ```
   * Start the ClickHouse replicator. Refer to README to learn more about the available [configuration parameters](https://github.com/epam/TimeBaseClickhouseConnector).<br>
   ```bash
