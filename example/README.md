@@ -79,6 +79,7 @@ java -jar -Dclickhouse.password=password -Dreplication.streams=clickhouse_stream
 GET http://localhost:8123/?user=read&password=password&database=tbc&query=select * from clickhouse_stream
 ```
 Refer to [ClickHouse](https://clickhouse.com/docs/ru/interfaces/http/) docs to learn more. 
+
 ---------------------------------------------------
 
 **To Run Replicator in Docker**
