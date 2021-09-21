@@ -41,7 +41,7 @@ To replicate TimeBase stream data to ClickHouse, we take objects and classes fro
 
 Let's take a look at a **simplified** example. In this example we will show how a message with a polymorphic array is transformed into a ClickHouse table. 
 
-Refer to [Example]() to view a step-by-step instruction on how to run this demo example and try the replication in action. 
+Refer to [Example](https://github.com/epam/TimeBaseClickhouseConnector/tree/main/example) to view a step-by-step instruction on how to run this demo example and try the replication in action. 
 
 ```sql
 /*TimeBase stream schema*/
@@ -109,7 +109,7 @@ DELETE FROM table_name WHERE EventTime = max_time
 
 ## Deployment 
 
-Refer to [Example]() to learn more about starting the replication.
+Refer to [Example](https://github.com/epam/TimeBaseClickhouseConnector/tree/main/example) to learn more about starting the replication.
 
 ## Configuration 
 
