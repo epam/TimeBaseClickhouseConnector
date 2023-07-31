@@ -52,6 +52,7 @@ dependencies {
 
 	implementation 'javax.annotation:javax.annotation-api'
 
+	implementation ("org.finos.timebase-ce:timebase-api")
 	implementation ("org.finos.timebase-ce:timebase-client") {
 		exclude group: 'org.finos.timebase-ce', module: 'timebase-s3'
 	}
@@ -98,6 +99,10 @@ task integrationTest(type: Test) {
 
 bootJar {
 	enabled = false
+}
+
+springBoot {
+	mainClassName = 'com.epam.deltix.timebase.connector.clickhouse.ClickhouseConnectorApplication'
 }
 
 task generateJar(type: Jar) {
