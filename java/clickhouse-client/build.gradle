@@ -1,0 +1,43 @@
+apply plugin: 'antlr'
+
+jar {
+    baseName = 'clickhouse-http-codecs'
+
+    version = version
+    manifest {
+        attributes "Implementation-Title": "ClickHouseCodecs",
+                   "Implementation-Version": version
+    }
+}
+
+dependencies {
+    antlr "org.antlr:antlr4:${antlr4Version}"
+    implementation "org.antlr:antlr4-runtime:${antlr4Version}"
+
+    implementation 'org.apache.commons:commons-lang3:3.7'
+    implementation 'org.springframework:spring-jdbc'
+    implementation 'com.clickhouse:clickhouse-jdbc'
+
+    implementation "com.fasterxml.jackson.core:jackson-core:${jackson_version}"
+    implementation "com.fasterxml.jackson.core:jackson-databind:${jackson_version}"
+
+    implementation 'org.lz4:lz4-java:1.8.0' // for clickhouse-jdbc compressing
+
+    // bytecode manipulation
+    implementation ('net.bytebuddy:byte-buddy:1.9.12')
+
+    implementation ('com.epam.deltix:dfp')
+    implementation ('com.epam.deltix:gflog-api')
+}
+
+
+def generatedSourcesDir = "${buildDir}/generated-src/main/java"
+
+generateGrammarSource {
+    arguments += ["-package", "com.epam.deltix.clickhouse.parser.gen"]
+    outputDirectory = new File(file(generatedSourcesDir), "com/epam/deltix/clickhouse/parser/gen")
+}
+
+sourceSets.main.java.srcDirs += generatedSourcesDir
+
+project.tasks.getByName('compileJava').dependsOn(generateGrammarSource)

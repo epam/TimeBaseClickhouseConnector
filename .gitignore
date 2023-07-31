@@ -1,4 +1,4 @@
 .idea
 .gradle
 build
-clickhouse-connector/build
+/**/build

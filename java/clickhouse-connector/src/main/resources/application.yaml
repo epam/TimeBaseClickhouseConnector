@@ -1,0 +1,36 @@
+clickhouse:
+  url: jdbc:clickhouse://localhost:8123/default
+  username: default
+  password:
+  database: default
+
+timebase:
+  url: dxtick://localhost:8011
+  username:
+  password:
+
+replication:
+  pollingIntervalMs: 60_000
+  flushMessageCount: 50_000
+  flushTimeoutMs: 60_000
+  queries:
+    - query: |
+        WITH
+            orderbook{maxDepth: 100}(this.packageType, this.entries[not this is TradeEntry]) AS book
+        SELECT RUNNING
+            originalTimestamp as 'originalTimestamp',
+            receivedTime as 'receivedTimestamp',
+            timestamp as 'timebaseTimestamp',
+            quote.exchangeId as 'exchangeId',
+            quote.side as 'side',
+            quote.level as 'level',
+            quote.price as 'price',
+            quote.size as 'size'
+        FROM BINANCE
+        ARRAY JOIN book AS array(L2EntryNew) AS 'quote'
+        GROUP BY symbol
+
+      key: binance
+      table: qqqq
+      columnNamingScheme: NAME
+      includePartitionColumn: false

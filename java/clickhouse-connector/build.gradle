@@ -1,0 +1,135 @@
+plugins {
+	id 'org.springframework.boot' version '2.3.0.RELEASE'
+	id 'java'
+}
+
+sourceSets {
+	integrationTest {
+		java {
+			compileClasspath += main.output + test.output
+			runtimeClasspath += main.output + test.output
+			srcDir file('src/integration-test/java')
+		}
+		resources.srcDir file('src/integration-test/resources')
+	}
+}
+
+configurations {
+	integrationTestImplementation.extendsFrom(testImplementation)
+	integrationTestRuntime.extendsFrom(testRuntime)
+}
+
+dependencies {
+
+	// Clickhouse client
+	implementation project (':java:clickhouse-client')
+
+	// Spring
+	implementation('org.springframework.boot:spring-boot-starter-actuator') {
+		exclude group: 'ch.qos.logback'
+	}
+
+	implementation('org.springframework.boot:spring-boot-starter-security') {
+		exclude group: 'ch.qos.logback'
+	}
+
+	// Logger
+	implementation "com.epam.deltix:gflog-api",
+			"com.epam.deltix:gflog-core",
+			"com.epam.deltix:gflog-jul"
+
+	// Timebase suite
+	implementation("com.epam.deltix:timebase-lang")
+	implementation("com.epam.deltix:timebase-util")
+	implementation("com.epam.deltix:timebase-messages")
+	implementation("com.epam.deltix:dfp")
+
+	implementation 'com.epam.deltix:containers'
+
+	implementation 'com.clickhouse:clickhouse-jdbc'
+	implementation 'org.springframework:spring-jdbc'
+	implementation 'org.apache.commons:commons-lang3'
+
+	implementation 'javax.annotation:javax.annotation-api'
+
+	implementation ("org.finos.timebase-ce:timebase-client") {
+		exclude group: 'org.finos.timebase-ce', module: 'timebase-s3'
+	}
+
+	//implementation ("org.finos.timebase-ce:timebase-api")
+
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+		exclude group: 'ch.qos.logback'
+	}
+	testImplementation 'org.springframework.security:spring-security-test'
+
+	//testImplementation("org.hamcrest:hamcrest-library:${hamcrest_library_version}")
+	testImplementation("de.cronn:reflection-util:2.6.0")
+
+	testImplementation("org.testcontainers:testcontainers:${postgres_testcontainers_version}")
+	testImplementation("org.testcontainers:junit-jupiter:${postgres_testcontainers_version}")
+	testImplementation("org.testcontainers:clickhouse:${postgres_testcontainers_version}")
+
+
+}
+
+tasks.withType(Test) {
+	useJUnitPlatform()
+}
+
+task integrationTest(type: Test) {
+	group 'verification'
+
+	testClassesDirs = sourceSets.integrationTest.output.classesDirs
+	classpath = sourceSets.integrationTest.runtimeClasspath
+	// This forces integration tests to always run if the task is run.
+	outputs.upToDateWhen { false }
+
+	testLogging.showStandardStreams = false
+	testLogging {
+		events "passed", "skipped", "failed"
+	}
+
+	reports {
+		html.enabled = true
+	}
+}
+
+bootJar {
+	enabled = false
+}
+
+task generateJar(type: Jar) {
+	from sourceSets.main.output
+	manifest {
+		baseName archivesBaseName
+		description description
+		attributes 'Manifest-Version': "1.0",
+				'Main-Class': 'deltix.timebase.connector.clickhouse.ClickhouseConnectorApplication',
+				'Implementation-Title': archivesBaseName,
+				'Implementation-Version': archiveVersion,
+				'Class-Path': configurations.runtimeClasspath.collect { it.getName() }.join(' ')
+	}
+}
+
+ext {
+	dockerImageName = 'timebase-clickhouse-connector'
+}
+
+task prepareFilesForDocker(type: Copy) {
+	group 'docker'
+	dependsOn 'build'
+	dependsOn 'generateJar'
+	into('/clickhouse-connector/lib') {
+		// Runtime dependencies
+		from configurations.runtimeClasspath
+		// application
+		from generateJar
+	}
+	into('/clickhouse-connector') {
+		// executables
+		from "$rootDir/bin"
+	}
+	destinationDir project.file("$buildDir/docker")
+}

@@ -1,2 +1,0 @@
-clickhouse:
-  url: jdbc:clickhouse://axa-clickhouse:8123/default

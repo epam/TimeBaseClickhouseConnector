@@ -1,68 +1,83 @@
-plugins {
-    id 'java'
-    id "com.bmuschko.docker-remote-api" version "5.2.0"
-}
-
-sourceCompatibility = 11
-
-repositories {
-    mavenCentral()
-}
-
-allprojects {
-
+buildscript {
     repositories {
         mavenCentral()
     }
-    buildscript {
-        repositories {
-            mavenCentral()
-        }
+    dependencies {
+        classpath 'org.owasp:dependency-check-gradle:5.2.2'
     }
+}
+
+plugins {
+    id 'java-library'
+    id 'base'
+    id 'idea'
+    id 'com.github.johnrengelman.shadow' version '5.1.0'
 }
 
 apply from: "$rootDir/gradle/Release.gradle"
+apply from: "$rootDir/gradle/DockerSupport.gradle"
 
-// docker part
-ext.dockerDir = "$buildDir/docker"
-ext.dockerHost = rootProject.findProperty('dockerRepositoryUrl') ?: System.getenv('ARTIFACTORY_DOCKER_REPOSITORY')
-if (rootProject.findProperty('dockerFeed') != null) {
-    ext.dockerUrl = "$dockerHost/${rootProject.findProperty('dockerFeed')}"
-} else
-    ext.dockerUrl = "$dockerHost/deltix.docker"
 
-//ext.dockerUrl = "$dockerHost/test.docker"
-//ext.dockerTagLatest = false
-if (rootProject.findProperty('dockerTag') != null) {
-    ext.dockerTags = ["${project.version.substring(0, project.version.lastIndexOf('.')).toString()}-${rootProject.findProperty('dockerTag')}"]
-    ext.assets = rootProject.findProperty('dockerTag')
-} else {
-    ext.dockerTags = ["$project.version", "${project.version.substring(0, project.version.lastIndexOf('.')).toString()}"]
-    ext.assets = "${project.version.substring(0, project.version.lastIndexOf('.')).toString()}"
+def currentJvm = org.gradle.internal.jvm.Jvm.current()
+
+private String getGitRevision() {
+    def gitOutput = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'rev-parse', '--short', 'HEAD'
+        standardOutput = gitOutput
+    }
+    return gitOutput.toString().replace("\n", "")
 }
 
-ext.devArtifactory = System.getenv('ARTIFACTORY_DOCKER_DEV_REPOSITORY') ?: "artifactory.epam.com:6190"
-ext.artifactory = System.getenv('ARTIFACTORY_DOCKER_REPOSITORY') ?: "artifactory.epam.com:6193"
-ext.assetsUrl = "${System.getenv('ARTIFACTORY_URL')}/${System.getenv('ARTIFACTORY_GENERIC_REPOSITORY')}"
-ext.devAssetsUrl = "${System.getenv('ARTIFACTORY_URL')}/${System.getenv('ARTIFACTORY_GENERIC_DEV_REPOSITORY')}"
-
-configure(subprojects) {
-    buildscript {
-        repositories {
-            gradlePluginPortal()
+/**
+ * Returns difference between number of commits from repo root to current head and to a specified commit.
+ * If the current HEAD is directly inherited from from the tag then returned number represents number of commits since tag.
+ * Otherwise the returned value has no special meaning.
+ */
+private Integer getCountOfCommitsSinceTag(tag) {
+    def gitOutput = new ByteArrayOutputStream()
+    try {
+        exec {
+            commandLine 'git', 'rev-list', '--count', tag
+            standardOutput = gitOutput
+            errorOutput = new ByteArrayOutputStream()
         }
-        dependencies {
-            classpath 'com.bmuschko:gradle-docker-plugin:5.2.0'
-        }
+    } catch (Exception ignore) {
+        logger.warn("WARN: Failed to find git tag: " + project.version)
+        return null;
     }
 
-    apply plugin: com.bmuschko.gradle.docker.DockerRemoteApiPlugin
+    def commitsFromRootToTag = gitOutput.toString()
+    gitOutput.reset()
 
-    docker {
-        registryCredentials {
-            url = "$dockerUrl"
-            username = System.getenv('ARTIFACTORY_USER') ?: rootProject.findProperty('dockerRepositoryUsername')
-            password = System.getenv('ARTIFACTORY_PASS') ?: rootProject.findProperty('dockerRepositoryPassword')
-        }
+    exec {
+        commandLine 'git', 'rev-list', '--count', 'HEAD'
+        standardOutput = gitOutput
     }
+
+    def commitsFromRootToHead = gitOutput.toString()
+    return Integer.parseInt(commitsFromRootToHead.replace("\n", "")) - Integer.parseInt(commitsFromRootToTag.replace("\n", ""))
 }
+
+private String getBuildTimestamp() {
+    def gitOutput = new ByteArrayOutputStream()
+    exec {
+        workingDir project.rootDir
+        commandLine 'git', 'log', '-1', '--date=iso8601', '--pretty=format:%cd'
+        standardOutput = gitOutput
+    }
+    return gitOutput.toString()
+}
+
+ext.revision = getGitRevision()
+ext.commitsAfterTag = getCountOfCommitsSinceTag(project.version) // Note: project version is expected to match existing tag name
+ext.commitTimestamp = getBuildTimestamp()
+
+println '======================================================================'
+println 'Current JVM              ' + currentJvm
+println 'Project version          ' + project.version
+println 'Revision                 ' + ext.revision
+println 'Commits after tag:       ' + ext.commitsAfterTag
+println 'Commit timestamp:        ' + ext.commitTimestamp
+println 'Repository user:         ' + findProperty("ARTIFACTORY_USER");
+println '======================================================================'

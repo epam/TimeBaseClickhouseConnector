@@ -1,2 +1,2 @@
-# TimebaseConnectors
+# Timebase ClickHouse Connector     
 

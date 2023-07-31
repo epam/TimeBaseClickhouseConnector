@@ -1,0 +1,51 @@
+clickhouse:
+  url: jdbc:clickhouse://host.docker.internal:8123/default
+  username: default
+  password:
+  database: default
+
+timebase:
+  url: dxtick://host.docker.internal:8011
+  username:
+  password:
+
+replication:
+  pollingIntervalMs: 60_000 # time to restart replication in case of any errors
+  flushMessageCount: 10_000 # maximum messages batch size when sending to clickhouse
+  flushTimeoutMs: 60_000 # maximum timeout to wait until 'flushMessageCount' is filled 
+  streams:
+#    - stream: bbos #   timebase stream key use as default table name on single table mapping
+#      key: bbo # unique identifier (required)
+#      splitByTypes: true
+#      typeTableMapping:
+#        deltix.timebase.api.messages.BestBidOfferMessage: BBO
+#        deltix.timebase.api.messages.TradeMessage: Trades
+#    - stream: bars #   timebase stream key use as default table name on single table mapping
+#      key: bars # unique identifier (required)
+    - stream: TRADES #   timebase stream key use as default table name on single table mapping
+      table: RAW_TRADES
+      key: TRADES # unique identifier (required)
+    - stream: STATISTIC #   timebase stream key use as default table name on single table mapping
+      key: STATISTIC # unique identifier (required)
+    - stream: securities
+      key: securities # unique identifier (required)
+ 
+  queries:
+    - query: |
+        SELECT RUNNING
+            originalTimestamp as 'time',            
+            symbol as 'symbol',
+            trade.exchangeId as 'exchangeId',
+            trade.side as 'side',
+            trade.price as 'price',
+            trade.size as 'size',
+            trade.matchId as 'matchId',
+            trade.buyerOrderId as 'buyerOrderId',
+            trade.sellerOrderId as 'sellerOrderId'
+        FROM Binance
+        ARRAY JOIN entries[this is TradeEntry] AS array(TradeEntry) AS 'trade'
+        GROUP BY symbol
+      key: binance
+      table: binance
+      columnNamingScheme: NAME
+      includePartitionColumn: false
