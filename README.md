@@ -41,7 +41,7 @@ To buld Docker image use
 
 Configuration template: [config](/configTemplate.md)
 
-Sample configuration for docker-compose: [Sample](./Samples/Docker/docker-compose)
+Sample configuration for docker-compose: [docker-compose](./samples/Docker/docker-compose.yml)
 
 
 
