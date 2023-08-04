@@ -28,7 +28,7 @@ Full clean and build of all modules
     $ ./gradlew clean build
 ```
 
-To buld Docker image use
+To build Docker image use
 ```shell
     $ ./gradlew :java:clickhouse-connector:dockerBuildImage
 ```
